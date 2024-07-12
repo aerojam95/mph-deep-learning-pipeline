@@ -1,0 +1,3 @@
+[submodule "src/rivet"]
+	path = src/rivet
+	url = git@github.com:rivetTDA/rivet.git
