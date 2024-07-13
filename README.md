@@ -75,11 +75,19 @@ make
 
 ### PyRivet
 
+Once the [Hera](https://bitbucket.org/xoltar/hera/src/master/) C++ application has been compiled, install PyRivet package from the [PyRivet submodule](srv/pyrivet/):
 
+1. Navigate from the root of the repository to the root of the PyRivet submodule: 
 
-### Multi-parameter persistence landscapes
+```
+cd src/pyrivet/
+```
 
+2. Install PyRivet package:
 
+```
+pip3 install -e .
+```
 
 ### Ripser
 
@@ -89,3 +97,7 @@ If the user has not used the virtual envionrment then the following python packa
 pip3 install Cython
 pip3 install Rpiser
 ```
+
+### Multi-parameter persistence landscapes
+
+The pipeline will be extensively using the code base from [Multiparameter_Persistence_Landscapes](https://github.com/OliverVipond/Multiparameter_Persistence_Landscapes) in order to generate the multi-parameter persistent landscapes. No installations required from this submodule, simply the the preceeding installations are required at this point for this submodule to be used.

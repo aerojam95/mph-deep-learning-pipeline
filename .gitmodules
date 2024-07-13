@@ -7,3 +7,6 @@
 [submodule "src/pyrivet"]
 	path = src/pyrivet
 	url = git@github.com:aerojam95/rivet-python.git
+[submodule "src/mph"]
+	path = src/mph
+	url = git@github.com:aerojam95/Multiparameter_Persistence_Landscapes.git
