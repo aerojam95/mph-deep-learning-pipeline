@@ -1,3 +1,6 @@
 [submodule "src/rivet"]
 	path = src/rivet
 	url = git@github.com:rivetTDA/rivet.git
+[submodule "src/hera"]
+	path = src/hera
+	url = https://bitbucket.org/xoltar/hera.git
