@@ -75,7 +75,19 @@ make
 
 ### PyRivet
 
+Once the [Hera](https://bitbucket.org/xoltar/hera/src/master/) C++ application has been compiled, install PyRivet package from the [PyRivet submodule](srv/pyrivet/):
 
+1. Navigate from the root of the repository to the root of the PyRivet submodule: 
+
+```
+cd src/pyrivet/
+```
+
+2. Install PyRivet package:
+
+```
+pip3 install -e .
+```
 
 ### Multi-parameter persistence landscapes
 
