@@ -89,10 +89,6 @@ cd src/pyrivet/
 pip3 install -e .
 ```
 
-### Multi-parameter persistence landscapes
-
-
-
 ### Ripser
 
 If the user has not used the virtual envionrment then the following python packages need to installed from Pypi in order to do single parameter persistence computations:
@@ -101,3 +97,7 @@ If the user has not used the virtual envionrment then the following python packa
 pip3 install Cython
 pip3 install Rpiser
 ```
+
+### Multi-parameter persistence landscapes
+
+The pipeline will be extensively using the code base from [Multiparameter_Persistence_Landscapes](https://github.com/OliverVipond/Multiparameter_Persistence_Landscapes) in order to generate the multi-parameter persistent landscapes. No installations required from this submodule, simply the the preceeding installations are required at this point for this submodule to be used.
