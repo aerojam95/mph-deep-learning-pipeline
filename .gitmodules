@@ -4,3 +4,6 @@
 [submodule "src/hera"]
 	path = src/hera
 	url = https://bitbucket.org/xoltar/hera.git
+[submodule "src/pyrivet"]
+	path = src/pyrivet
+	url = git@github.com:aerojam95/rivet-python.git
