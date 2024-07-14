@@ -100,4 +100,4 @@ pip3 install Rpiser
 
 ### Multi-parameter persistence landscapes
 
-The pipeline will be extensively using the code base from [Multiparameter_Persistence_Landscapes](https://github.com/OliverVipond/Multiparameter_Persistence_Landscapes) in order to generate the multi-parameter persistent landscapes. No installations required from this submodule, simply the the preceeding installations are required at this point for this submodule to be used.
+The pipeline will be extensively using the code base from [Multiparameter_Persistence_Landscapes](https://github.com/OliverVipond/Multiparameter_Persistence_Landscapes) in order to generate the multi-parameter persistent landscapes. No installations required from this submodule, simply the preceeding installations are required at this point for this submodule to be used.
