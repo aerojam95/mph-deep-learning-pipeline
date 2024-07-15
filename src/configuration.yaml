@@ -1,0 +1,27 @@
+# Data configuration
+data:
+  raw_file_path: "../data/raw/Spatial Patterning of Immune Cells/ExampleCellPointclouds/"
+  processed_file_path: "../data/processed/Spatial Patterning of Immune Cells/ExampleCellPointclouds/"
+
+# Output configuration
+output:
+  models_file_path: "../outputs/models/"
+  training_file_path: "../outputs/training/"
+  performance_file_path: "../outputs/performance/"
+  summaries_file_path: "../outputs/summaries/"
+
+# MPH configuration
+mph:
+  k_family: 1
+  second_persistent_parameter: "Oxygen"
+
+# Model configuration
+model:
+  cnn: True
+  supervised: True
+  unsupervised: False
+
+# Logging configuration
+logging:
+  logging_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  log_file_path: "../outputs/logs/pipeline.log"
