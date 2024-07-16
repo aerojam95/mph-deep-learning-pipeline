@@ -12,8 +12,17 @@ output:
 
 # MPH configuration
 mph:
+  coord1: "x"
+  coord2: "y"
+  labelColumn: "PointType"
+  label: "Macrophage"
+  parameter: "Oxygen"
+  RipsMax: 40
+  scaling: 5
   k_family: 1
-  second_persistent_parameter: "Oxygen"
+  resolution: 50
+  grid_step_size: 0.4
+  plot_indices: [1, 1]
 
 # Model configuration
 model:
