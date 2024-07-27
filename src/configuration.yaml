@@ -1,24 +1,23 @@
+# Logging configuration
+logging:
+  logging_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  log_file_path: "../outputs/logs/pipeline.log"
+
 # Data configuration
 data:
-  raw_file_path: "../data/raw/Spatial Patterning of Immune Cells/ExampleCellPointclouds/"
-  processed_file_path: "../data/processed/Spatial Patterning of Immune Cells/ExampleCellPointclouds/"
-
-# Output configuration
-output:
-  models_file_path: "../outputs/models/"
-  training_file_path: "../outputs/training/"
-  performance_file_path: "../outputs/performance/"
-  summaries_file_path: "../outputs/summaries/"
+  raw_data_directory_path: "../data/raw/Spatial Patterning of Immune Cells/ExampleCellPointclouds/"
+  processed_data_directory_path: "../data/processed/Spatial Patterning of Immune Cells/ExampleCellPointclouds/"
+  label_file: null
 
 # MPH configuration
 mph:
+  threads: 14
   coord1: "x"
   coord2: "y"
-  labelColumn: "PointType"
-  label: "Macrophage"
-  parameter: "Oxygen"
+  parameter: null
   RipsMax: 40
-  scaling: 5
+  alpha: 5
+  homology: 1
   k_family: 1
   resolution: 50
   grid_step_size: 0.4
@@ -26,11 +25,14 @@ mph:
 
 # Model configuration
 model:
-  cnn: True
+  test_ratio: 0.2
+  pretrained: False
+  pretrained_model_file_path: null
   supervised: True
-  unsupervised: False
+  model_to_train_file: "cnn.py"
 
-# Logging configuration
-logging:
-  logging_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-  log_file_path: "../outputs/logs/pipeline.log"
+# Output configuration
+output:
+  models_directory_path: "../outputs/models/"
+  training_directory_path: "../outputs/training/"
+  summaries_directory_path: "../outputs/summaries/"

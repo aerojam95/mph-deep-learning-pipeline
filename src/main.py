@@ -10,8 +10,11 @@
 import logging
 import yaml
 import os
-from bokeh.io import output_notebook
-output_notebook()
+import glob
+import numpy as np
+import torch
+from torch.utils.data import Dataset, DataLoader
+import torchvision.transforms as transforms
 
 # Custom modules
 from preprocessing import mphData, computeMph, generateMph
@@ -60,6 +63,20 @@ def generate_indices(k_family:int):
         return [1]
     else:
         return list(range(1, k_family + 1))
+    
+def extract_between_last_two_slashes(s):
+    # Find the position of the last "/"
+    last_slash = s.rfind("/")
+    if last_slash == -1:
+        return None
+    
+    # Find the position of the second last "/"
+    second_last_slash = s.rfind("/", 0, last_slash)
+    if second_last_slash == -1:
+        return None
+    
+    # Extract the substring between the last two "/"
+    return s[second_last_slash + 1:last_slash]
 
 
 #=============================================================================
@@ -103,25 +120,19 @@ if __name__ == "__main__":
     
     # Extract data configuration
     logger.info(f"importing data configurations...")
-    raw_file_path       = configurationData["data"]["raw_file_path"]
-    processed_file_path = configurationData["data"]["processed_file_path"]
-    
-    # Extract outputs configuration
-    logger.info(f"importing outputs configurations...")
-    models_file_path      = configurationData["output"]["models_file_path"]
-    training_file_path    = configurationData["output"]["training_file_path"]
-    performance_file_path = configurationData["output"]["performance_file_path"]
-    summaries_file_path   = configurationData["output"]["summaries_file_path"]
+    raw_data_directory_path       = configurationData["data"]["raw_data_directory_path"]
+    processed_data_directory_path = configurationData["data"]["processed_data_directory_path"]
+    label_file                    = configurationData["data"]["label_file"]
     
     # Extract mph configuration
     logger.info(f"importing mph configurations...")
+    threads         = configurationData["mph"]["threads"]
     coord1          = configurationData["mph"]["coord1"]
     coord2          = configurationData["mph"]["coord2"]
-    labelColumn     = configurationData["mph"]["labelColumn"]
-    label           = configurationData["mph"]["label"]
     parameter       = configurationData["mph"]["parameter"]
     RipsMax         = configurationData["mph"]["RipsMax"]
-    scaling         = configurationData["mph"]["scaling"]
+    alpha           = configurationData["mph"]["alpha"]
+    homology        = configurationData["mph"]["homology"]
     k_family        = configurationData["mph"]["k_family"]
     resolution      = configurationData["mph"]["resolution"]
     grid_step_size  = configurationData["mph"]["grid_step_size"]
@@ -129,26 +140,66 @@ if __name__ == "__main__":
     
     # Extract model configurations
     logger.info(f"importing model configurations...")
-    cnn          = configurationData["model"]["cnn"]
-    supervised   = configurationData["model"]["supervised"]
-    unsupervised = configurationData["model"]["unsupervised"]
+    test_ratio                 = configurationData["model"]["test_ratio"]
+    pretrained                 = configurationData["model"]["pretrained"]
+    pretrained_model_file_path = configurationData["model"]["pretrained_model_file_path"]
+    supervised                 = configurationData["model"]["supervised"]
+    model_to_train_file        = configurationData["model"]["model_to_train_file"]
+    
+    # Extract outputs configuration
+    logger.info(f"importing outputs configurations...")
+    models_directory_path      = configurationData["output"]["models_directory_path"]
+    training_directory_path    = configurationData["output"]["training_directory_path"]
+    summaries_directory_path   = configurationData["output"]["summaries_directory_path"]
     
     #==========================================================================
     # Preprocess MPH landscapes
     #==========================================================================
     
     # Get files to process
-    logger.info(f"Runnning preprocessing on files in {raw_file_path}")
-    files = list_files_in_directory(raw_file_path)
+    logger.info(f"Runnning preprocessing on files in {raw_data_directory_path}")
+    files = list_files_in_directory(raw_data_directory_path)
+    folder = extract_between_last_two_slashes(raw_data_directory_path)
+    count = 1
     
-    # Get Data for processing
-    logger.info(f"Runnning preprocessing on {files[7]}...")
-    X, parameter_level = mphData(file=f"{raw_file_path}{files[7]}", coord1=coord1, coord2=coord2, labelColumn=labelColumn, label=label, parameter=parameter, RipsMax=RipsMax, scaling=scaling)
+    for file in files:
+        file_no_extension = file.rstrip(".csv")
+        # Get Data for processing
+        logger.info(f"Runnning preprocessing on {file}...")
+        X, parameter_level = mphData(file=f"{raw_data_directory_path}{file}", coord1=coord1, coord2=coord2, labelColumn=labelColumn, label=label, parameter=parameter, supervised=supervised, RipsMax=RipsMax, alpha=alpha)
+        
+        if np.isnan(parameter_level).any():
+            logger.info(f"{file} parameter_level contains NaN")
+        else:
+            # Generate mph landscape
+            logger.info(f"Generating mph landscape for {file}...")
+            multi_landscape = computeMph(X, parameter_level, RipsMax=RipsMax, homology=homology, k_family=k_family, resolution=resolution, grid_step_size=grid_step_size, threads=threads, description="test")
+            
+            # Generate mph landscape contour 
+            logger.info(f"Saving mph landscape plot for {file}...")
+            landscape_plots = generateMph(multi_landscape, file=f"{processed_data_directory_path}{label}/{file_no_extension}_H{homology}_k{k_family}_{count}", indices=plot_indices)
+        
+        count += 1
+        
+    # Clean up temporary files
+    logger.info(f"Clearing .txt temporary files")
+    txt_files = glob.glob("*.txt")
+    for txt_file in txt_files:
+        try:
+            os.remove(txt_file)
+        except OSError as e:
+            print(f"Error: {txt_file} : {e.strerror}")
+            
+    logger.info(f"Clearing .rivet temporary files")
+    txt_files = glob.glob("*.rivet")
+    for txt_file in txt_files:
+        try:
+            os.remove(txt_file)
+        except OSError as e:
+            print(f"Error: {txt_file} : {e.strerror}")
+            
+    #==========================================================================
+    # Create pytorch dataset
+    #==========================================================================
     
-    # Generate mph landscape
-    logger.info(f"Generating mph landscape for {files[7]}...")
-    multi_landscape = computeMph(X, parameter_level, RipsMax=RipsMax, k_family=k_family, resolution=resolution, grid_step_size=grid_step_size)
-    
-    # Generate mph landscape contour 
-    logger.info(f"Saving mph landscape plot for {files[7]}...")
-    landscape_plots = generateMph(multi_landscape, file=f"{processed_file_path}test", indices=plot_indices)
+    logger.info(f"Creating PyTorch dataset...")
