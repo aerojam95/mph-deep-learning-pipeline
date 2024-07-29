@@ -10,22 +10,15 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.spatial import distance_matrix
-from scipy.ndimage import zoom
 import matplotlib.pyplot as plt
-import torch
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 from PIL import Image
 import os
 
 # Custom modules
 from logger import logger
-import mph.multiparameter_landscape
 from mph.multiparameter_landscape import multiparameter_landscape
-import mph.multiparameter_landscape_plotting
-from mph.multiparameter_landscape_plotting import plot_multiparameter_landscapes
-import mph.helper_functions
 from mph.helper_functions import normalise_filter
 from mph.helper_functions import Compute_Rivet
 
@@ -232,7 +225,7 @@ def generateMph(multi_landscape:object, file:str, indices:list=[1, 1]):
 # Classes
 #=============================================================================
 
-class mphDataset(Dataset):
+class LabelledDataset(Dataset):
     def __init__(self:object, data_dir:str, labels:list, transform=transform):
         self.data_dir = data_dir
         self.transform = transform
@@ -258,3 +251,25 @@ class mphDataset(Dataset):
             image = self.transform(image)
         
         return image, label
+    
+class UnlabeledDataset(Dataset):
+    def __init__(self, data_dir, transform=transform):
+        self.data_dir = data_dir
+        self.transform = transform
+        self.images = []
+        
+        for img_name in os.listdir(data_dir):
+            img_path = os.path.join(data_dir, img_name)
+            self.images.append(img_path)
+    
+    def __len__(self):
+        return len(self.images)
+    
+    def __getitem__(self, idx):
+        img_path = self.images[idx]
+        image = Image.open(img_path).convert('L')  # Convert image to grayscale
+        
+        if self.transform:
+            image = self.transform(image)
+        
+        return image

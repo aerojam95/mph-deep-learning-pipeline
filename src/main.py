@@ -15,6 +15,7 @@ import numpy as np
 # Custom modules
 from logger import logger
 import data_preprocessing
+import dataset
 
 #=============================================================================
 # Variables
@@ -180,3 +181,27 @@ if __name__ == "__main__":
     if modelling is True:
         
         logger.info(f"Beginning modelling...")
+        
+        #======================================================================
+        #  Data set generation
+        #======================================================================
+        
+        # Generate data set objects
+        if supervised is True:
+            logger.info(f"Generating supervised data set...")
+            labels = data_preprocessing.get_labels(label_file)
+            model_dataset = dataset.LabelledDataset(processed_data_directory_path, labels)
+        else:
+            logger.info(f"Generating unsupervised data set...")
+            model_dataset = dataset.LabelledDataset(processed_data_directory_path)
+            
+        # Split to test and training data sets
+        logger.info(f"Splitting data set...")
+        train_dataset, test_dataset = dataset.split_dataset(model_dataset, test_ratio)
+        
+        #======================================================================
+        #  Model training
+        #======================================================================
+        
+        if pretrained is False:
+            logger.info(f"Training model...")
