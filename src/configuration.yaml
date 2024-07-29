@@ -1,20 +1,16 @@
-# Logging configuration
-logging:
-  logging_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-  log_file_path: "../outputs/logs/pipeline.log"
-
 # Data configuration
 data:
-  raw_data_directory_path: "../data/raw/Spatial Patterning of Immune Cells/ExampleCellPointclouds/"
-  processed_data_directory_path: "../data/processed/Spatial Patterning of Immune Cells/ExampleCellPointclouds/"
-  label_file: null
+  raw_data_directory_path: "../data/raw/test_data/"
+  processed_data_directory_path: "../data/processed/test_data/"
+  label_file: "../data/raw/labels/test_data.csv"
 
 # MPH configuration
 mph:
+  contours: True
   threads: 14
   coord1: "x"
   coord2: "y"
-  parameter: null
+  parameter: "Oxygen"
   RipsMax: 40
   alpha: 5
   homology: 1
@@ -25,6 +21,7 @@ mph:
 
 # Model configuration
 model:
+  modelling: False
   test_ratio: 0.2
   pretrained: False
   pretrained_model_file_path: null
