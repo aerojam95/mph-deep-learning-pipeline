@@ -51,6 +51,7 @@ if __name__ == "__main__":
     coord2          = configurationData["mph"]["coord2"]
     parameter       = configurationData["mph"]["parameter"]
     RipsMax         = configurationData["mph"]["RipsMax"]
+    normalise       = configurationData["mph"]["normalise"]
     alpha           = configurationData["mph"]["alpha"]
     homology        = configurationData["mph"]["homology"]
     k_family        = configurationData["mph"]["k_family"]
@@ -114,18 +115,22 @@ if __name__ == "__main__":
             file_no_extension = file.rstrip(".csv")
             # Get Data for processing
             logger.info(f"Runnning preprocessing on {file_no_extension}...")
-            X, parameter_level = data_preprocessing.mphData(
+            X, parameter_level, RipsMax = data_preprocessing.mphData(
                 file=f"{raw_data_directory_path}{file}",
                 coord1=coord1, 
                 coord2=coord2, 
                 parameter=parameter,
                 RipsMax=RipsMax,
+                normalise=normalise,
                 alpha=alpha
                 )
             
             if np.isnan(parameter_level).any():
                 logger.info(f"{file} parameter_level contains NaN")
             else:
+                if grid_step_size is None:
+                    grid_step_size = 0.01 * RipsMax
+                    logger.info(f"Setting grid step size to: {grid_step_size}")
                 # Generate mph landscape
                 logger.info(f"Generating mph landscape for {file_no_extension}...")
                 multi_landscape = data_preprocessing.computeMph(
@@ -145,9 +150,9 @@ if __name__ == "__main__":
                 
                 if supervised is True:
                     label = file_label_dict[file]
-                    contour_file = f"{processed_data_directory_path}{label}/{file_no_extension}_H{homology}_k{k_family}_{count}"
+                    contour_file = f"{processed_data_directory_path}{label}/{file_no_extension}_H{homology}_k{k_family}_RipsMax{RipsMax}_{count}"
                 else:
-                    contour_file = f"{processed_data_directory_path}{file_no_extension}_H{homology}_k{k_family}_{count}"
+                    contour_file = f"{processed_data_directory_path}{file_no_extension}_H{homology}_k{k_family}_RipsMax{RipsMax}_{count}"
                     
                 landscape_plots = data_preprocessing.generateMph(
                     multi_landscape, 

@@ -10,8 +10,9 @@ mph:
   threads: 14
   coord1: "x"
   coord2: "y"
-  parameter: "Oxygen"
+  parameter: "codensity"
   RipsMax: 40
+  normalise: True
   alpha: 5
   homology: 1
   k_family: 1

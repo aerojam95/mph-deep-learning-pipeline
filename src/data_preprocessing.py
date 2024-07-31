@@ -10,11 +10,10 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.pyplot as plt
-from torch.utils.data import Dataset
 import torchvision.transforms as transforms
-from PIL import Image
 import os
+from scipy.spatial import distance_matrix
+from math import ceil
 
 # Custom modules
 from logger import logger
@@ -37,7 +36,7 @@ transform = transforms.Compose([
 # Functions
 #=============================================================================
 
-def list_files_in_directory(directory:str=None):
+def list_files_in_directory(directory:str):
     """Function finds all files in a driectory and verifies that the files exist
 
     Args:
@@ -51,7 +50,7 @@ def list_files_in_directory(directory:str=None):
         logger.info(f"Files to be processed found")
         return files
     except Exception as e:
-        logger.error(f"Files to be processed not found")
+        logger.error(f"Error: Files to be processed not found: {e}")
         return []
     
 def generate_indices(k_family:int):
@@ -149,7 +148,7 @@ def make_label_allocation(label_file: str):
         logger.error(f"An error occurred while iterating over the DataFrame: {e}")
     return label_dict
 
-def mphData(file:str, coord1:str, coord2:str, parameter:str, RipsMax:float=40, alpha:float=5):
+def mphData(file:str, coord1:str, coord2:str, parameter:str, RipsMax=None, normalise:bool=False, alpha:float=5):
     """formats data from a .csv data file into two pd DataFrames
 
     Args:
@@ -157,7 +156,8 @@ def mphData(file:str, coord1:str, coord2:str, parameter:str, RipsMax:float=40, a
         coord1 (str): x coordinate for persistent homology
         coord2 (str): y coordinate for persistent homology
         parameter (str): second parameter for persistent homology
-        RipsMax (float, optional): Max epsilon for Rips Complex to scale second parameter. Defaults to 40.
+        RipsMax (optional): Largest epsilon value for the Rips complex. Defaults to None.
+        normalise (bool, optional): Normalisation for Rips Complex to scale second parameter. Defaults to False.
         alpha (float, optional): alpha parameter. Defaults to 5.
 
     Returns:
@@ -165,10 +165,18 @@ def mphData(file:str, coord1:str, coord2:str, parameter:str, RipsMax:float=40, a
     """
     df = pd.read_csv(file)
     X = df[[coord1, coord2]].values
-    parameter_level = RipsMax * normalise_filter(
-        df[parameter].values, alpha
-    )
-    return X, parameter_level
+    if RipsMax is None:
+        distances = distance_matrix(X, X)
+        distances = distances.max(axis=0).max(axis=0)
+        RipsMax = ceil(distances)
+        logger.info(f"RipsMax to be used for {file}: {RipsMax}")
+    if normalise is True:
+        parameter_level = RipsMax * normalise_filter(
+            df[parameter].values, alpha
+        )
+    else:
+        parameter_level = df[parameter].values
+    return X, parameter_level, RipsMax
     
 
 def computeMph(X:pd.DataFrame, parameter_level:pd.DataFrame, RipsMax:float=10.0, homology:int=0, k_family:int=1, resolution:float=50, grid_step_size:float=0.4, threads:int=1, description:str='deafult_description'):
@@ -225,51 +233,3 @@ def generateMph(multi_landscape:object, file:str, indices:list=[1, 1]):
 # Classes
 #=============================================================================
 
-class LabelledDataset(Dataset):
-    def __init__(self:object, data_dir:str, labels:list, transform=transform):
-        self.data_dir = data_dir
-        self.transform = transform
-        self.images = []
-        self.labels = []
-        
-        for label in labels:
-            label_dir = os.path.join(data_dir, str(label))
-            for img_name in os.listdir(label_dir):
-                img_path = os.path.join(label_dir, img_name)
-                self.images.append(img_path)
-                self.labels.append(label)
-    
-    def __len__(self):
-        return len(self.images)
-    
-    def __getitem__(self, idx):
-        img_path = self.images[idx]
-        image = Image.open(img_path).convert('L')  # Convert image to grayscale
-        label = self.labels[idx]
-        
-        if self.transform:
-            image = self.transform(image)
-        
-        return image, label
-    
-class UnlabeledDataset(Dataset):
-    def __init__(self, data_dir, transform=transform):
-        self.data_dir = data_dir
-        self.transform = transform
-        self.images = []
-        
-        for img_name in os.listdir(data_dir):
-            img_path = os.path.join(data_dir, img_name)
-            self.images.append(img_path)
-    
-    def __len__(self):
-        return len(self.images)
-    
-    def __getitem__(self, idx):
-        img_path = self.images[idx]
-        image = Image.open(img_path).convert('L')  # Convert image to grayscale
-        
-        if self.transform:
-            image = self.transform(image)
-        
-        return image
