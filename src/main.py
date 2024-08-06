@@ -97,7 +97,6 @@ if __name__ == "__main__":
             
             # Make file dictionary label
             file_label_dict = data_preprocessing.make_label_allocation(label_file)
-            print(file_label_dict)
             logger.info(f"file label allocations identified")
             
         #======================================================================
