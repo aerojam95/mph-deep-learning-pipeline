@@ -22,7 +22,7 @@ import dataset
 #=============================================================================
 
 # Path to the JSON metadata file
-configurationFilePath = "configuration.yaml"
+configurationFilePath = "pipeline_configuration.yaml"
 
 #=============================================================================
 # Programme exectuion
@@ -45,19 +45,17 @@ if __name__ == "__main__":
     
     # Extract mph configuration
     logger.info(f"importing mph configurations...")
-    contours        = configurationData["mph"]["contours"]
-    threads         = configurationData["mph"]["threads"]
-    coord1          = configurationData["mph"]["coord1"]
-    coord2          = configurationData["mph"]["coord2"]
-    parameter       = configurationData["mph"]["parameter"]
-    RipsMax         = configurationData["mph"]["RipsMax"]
-    normalise       = configurationData["mph"]["normalise"]
-    alpha           = configurationData["mph"]["alpha"]
-    homology        = configurationData["mph"]["homology"]
-    k_family        = configurationData["mph"]["k_family"]
-    resolution      = configurationData["mph"]["resolution"]
-    grid_step_size  = configurationData["mph"]["grid_step_size"]
-    plot_indices    = configurationData["mph"]["plot_indices"]
+    contours                = configurationData["mph"]["contours"]
+    threads                 = configurationData["mph"]["threads"]
+    coord1                  = configurationData["mph"]["coord1"]
+    coord2                  = configurationData["mph"]["coord2"]
+    parameter               = configurationData["mph"]["parameter"]
+    homology                = configurationData["mph"]["homology"]
+    k_family                = configurationData["mph"]["k_family"]
+    plot_indices            = configurationData["mph"]["plot_indices"]
+    resolution              = configurationData["mph"]["resolution"]
+    RipsMax                 = configurationData["mph"]["RipsMax"]
+    grid_step_size          = configurationData["mph"]["grid_step_size"]
     
     # Extract model configurations
     logger.info(f"importing model configurations...")
@@ -99,6 +97,7 @@ if __name__ == "__main__":
             
             # Make file dictionary label
             file_label_dict = data_preprocessing.make_label_allocation(label_file)
+            print(file_label_dict)
             logger.info(f"file label allocations identified")
             
         #======================================================================
@@ -109,28 +108,21 @@ if __name__ == "__main__":
         logger.info(f"Runnning contour generation on files in {raw_data_directory_path}")
         files = data_preprocessing.list_files_in_directory(raw_data_directory_path)
         folder = data_preprocessing.extract_between_last_two_slashes(raw_data_directory_path)
-        count = 1
         
         for file in files:
             file_no_extension = file.rstrip(".csv")
             # Get Data for processing
             logger.info(f"Runnning preprocessing on {file_no_extension}...")
-            X, parameter_level, RipsMax = data_preprocessing.mphData(
+            X, parameter_level = data_preprocessing.mphData(
                 file=f"{raw_data_directory_path}{file}",
                 coord1=coord1, 
                 coord2=coord2, 
-                parameter=parameter,
-                RipsMax=RipsMax,
-                normalise=normalise,
-                alpha=alpha
+                parameter=parameter
                 )
             
             if np.isnan(parameter_level).any():
                 logger.info(f"{file} parameter_level contains NaN")
             else:
-                if grid_step_size is None:
-                    grid_step_size = 0.01 * RipsMax
-                    logger.info(f"Setting grid step size to: {grid_step_size}")
                 # Generate mph landscape
                 logger.info(f"Generating mph landscape for {file_no_extension}...")
                 multi_landscape = data_preprocessing.computeMph(
@@ -150,17 +142,15 @@ if __name__ == "__main__":
                 
                 if supervised is True:
                     label = file_label_dict[file]
-                    contour_file = f"{processed_data_directory_path}{label}/{file_no_extension}_H{homology}_k{k_family}_RipsMax{RipsMax}_{count}"
+                    contour_file = f"{processed_data_directory_path}{label}/{file_no_extension}_H{homology}_k{k_family}_RipsMax{RipsMax}"
                 else:
-                    contour_file = f"{processed_data_directory_path}{file_no_extension}_H{homology}_k{k_family}_RipsMax{RipsMax}_{count}"
+                    contour_file = f"{processed_data_directory_path}{file_no_extension}_H{homology}_k{k_family}_RipsMax{RipsMax}"
                     
                 landscape_plots = data_preprocessing.generateMph(
                     multi_landscape, 
                     file=contour_file,
                     indices=plot_indices
                     )
-            
-            count += 1
             
         # Clean up temporary files
         logger.info(f"Clearing .txt temporary files...")

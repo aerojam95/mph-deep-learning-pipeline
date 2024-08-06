@@ -12,13 +12,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torchvision.transforms as transforms
 import os
-from scipy.spatial import distance_matrix
-from math import ceil
+from skimage.transform import resize
 
 # Custom modules
 from logger import logger
 from mph.multiparameter_landscape import multiparameter_landscape
-from mph.helper_functions import normalise_filter
 from mph.helper_functions import Compute_Rivet
 
 #=============================================================================
@@ -148,7 +146,7 @@ def make_label_allocation(label_file: str):
         logger.error(f"An error occurred while iterating over the DataFrame: {e}")
     return label_dict
 
-def mphData(file:str, coord1:str, coord2:str, parameter:str, RipsMax=None, normalise:bool=False, alpha:float=5):
+def mphData(file:str, coord1:str, coord2:str, parameter:str):
     """formats data from a .csv data file into two pd DataFrames
 
     Args:
@@ -156,27 +154,14 @@ def mphData(file:str, coord1:str, coord2:str, parameter:str, RipsMax=None, norma
         coord1 (str): x coordinate for persistent homology
         coord2 (str): y coordinate for persistent homology
         parameter (str): second parameter for persistent homology
-        RipsMax (optional): Largest epsilon value for the Rips complex. Defaults to None.
-        normalise (bool, optional): Normalisation for Rips Complex to scale second parameter. Defaults to False.
-        alpha (float, optional): alpha parameter. Defaults to 5.
 
     Returns:
         pd DataFrame, pd DataFrame: Coordinate and parameter DataFrames
     """
     df = pd.read_csv(file)
     X = df[[coord1, coord2]].values
-    if RipsMax is None:
-        distances = distance_matrix(X, X)
-        distances = distances.max(axis=0).max(axis=0)
-        RipsMax = ceil(distances)
-        logger.info(f"RipsMax to be used for {file}: {RipsMax}")
-    if normalise is True:
-        parameter_level = RipsMax * normalise_filter(
-            df[parameter].values, alpha
-        )
-    else:
-        parameter_level = df[parameter].values
-    return X, parameter_level, RipsMax
+    parameter_level = df[parameter].values
+    return X, parameter_level
     
 
 def computeMph(X:pd.DataFrame, parameter_level:pd.DataFrame, RipsMax:float=10.0, homology:int=0, k_family:int=1, resolution:float=50, grid_step_size:float=0.4, threads:int=1, description:str='deafult_description'):
@@ -220,8 +205,9 @@ def generateMph(multi_landscape:object, file:str, indices:list=[1, 1]):
             contour = multi_landscape.landscape_matrix[index - 1, :, :]
             
             # Normalise the matrix to be in the range [0, 255] for image representation
-            normalised_matrix = (255 * (contour - np.min(contour)) / 
-                                np.ptp(contour)).astype(np.uint8)
+            normalised_matrix = 255 * (contour - np.min(contour)) / (np.max(contour) - np.min(contour))
+            normalised_matrix = resize(normalised_matrix, (300, 300), anti_aliasing=True)
+            normalised_matrix = normalised_matrix.astype(np.uint8)
             
             # Save the image without axes using imsave
             plt.imsave(f"{file}.png", normalised_matrix, cmap="gray")

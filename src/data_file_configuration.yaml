@@ -1,0 +1,13 @@
+## Data file configuration
+directory_to_compute:  "../data/raw/test_data/"
+coord1: "x"
+coord2: "y"
+compute_codensity: True
+parameter: "codensity"
+mean_codensity: True
+kNN: 10
+region_standardise: True
+alpha: 5
+global_standardise: False
+rips_scale: 600
+parameter_scale: 360
