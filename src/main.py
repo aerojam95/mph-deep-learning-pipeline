@@ -124,32 +124,37 @@ if __name__ == "__main__":
             else:
                 # Generate mph landscape
                 logger.info(f"Generating mph landscape for {file_no_extension}...")
-                multi_landscape = data_preprocessing.computeMph(
-                    X, 
-                    parameter_level, 
-                    RipsMax=RipsMax, 
-                    homology=homology, 
-                    k_family=k_family, 
-                    resolution=resolution, 
-                    grid_step_size=grid_step_size, 
-                    threads=threads, 
-                    description=f"{file}"
-                    )
                 
-                # Generate mph landscape contour 
-                logger.info(f"Saving mph landscape plot for {file_no_extension}...")
+                try:
+                    multi_landscape = data_preprocessing.computeMph(
+                        X, 
+                        parameter_level, 
+                        RipsMax=RipsMax, 
+                        homology=homology, 
+                        k_family=k_family, 
+                        resolution=resolution, 
+                        grid_step_size=grid_step_size, 
+                        threads=threads, 
+                        description=f"{file}"
+                        )
                 
-                if supervised is True:
-                    label = file_label_dict[file]
-                    contour_file = f"{processed_data_directory_path}{label}/{file_no_extension}_H{homology}_k{k_family}_RipsMax{RipsMax}"
-                else:
-                    contour_file = f"{processed_data_directory_path}{file_no_extension}_H{homology}_k{k_family}_RipsMax{RipsMax}"
+                    # Generate mph landscape contour 
+                    logger.info(f"Saving mph landscape plot for {file_no_extension}...")
                     
-                landscape_plots = data_preprocessing.generateMph(
-                    multi_landscape, 
-                    file=contour_file,
-                    indices=plot_indices
-                    )
+                    if supervised is True:
+                        label = file_label_dict[file]
+                        contour_file = f"{processed_data_directory_path}{label}/{file_no_extension}_H{homology}_k{k_family}_RipsMax{RipsMax}"
+                    else:
+                        contour_file = f"{processed_data_directory_path}{file_no_extension}_H{homology}_k{k_family}_RipsMax{RipsMax}"
+                        
+                    landscape_plots = data_preprocessing.generateMph(
+                        multi_landscape, 
+                        file=contour_file,
+                        indices=plot_indices
+                        )
+                    
+                except Exception as e:
+                    logger.error(f"Failed to generate mph landscape for {file_no_extension}: {e}")
             
         # Clean up temporary files
         logger.info(f"Clearing .txt temporary files...")

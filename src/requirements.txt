@@ -68,7 +68,6 @@ pure-eval==0.2.2
 pyflagser==0.4.7
 Pygments==2.18.0
 pyparsing==3.1.2
--e git+ssh://git@github.com/aerojam95/rivet-python.git@7cd2d5eeffcb2913286359e9624f68899f0e5bc1#egg=pyrivet&subdirectory=../../../src/pyrivet
 PySocks==1.7.1
 python-dateutil==2.9.0.post0
 pytz==2024.1

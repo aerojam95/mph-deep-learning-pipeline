@@ -2,9 +2,9 @@
 
 # Data configuration
 data:
-  raw_data_directory_path: "../data/raw/test_data/"
-  processed_data_directory_path: "../data/processed/test_data/"
-  label_file: "../data/raw/labels/test_data.csv"
+  raw_data_directory_path: "../data/raw/1.5mmRegions/CD8/"
+  processed_data_directory_path: "../data/processed/1.5mmRegions/"
+  label_file: "../data/raw/labels/CD8.csv"
 
 # MPH configuration
 mph:

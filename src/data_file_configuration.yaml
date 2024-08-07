@@ -1,5 +1,5 @@
 ## Data file configuration
-directory_to_compute:  "../data/raw/test_data/"
+directory_to_compute:  "../data/raw/1.5mmRegions/FoxP3/"
 coord1: "x"
 coord2: "y"
 compute_codensity: True
