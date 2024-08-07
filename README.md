@@ -95,7 +95,7 @@ If the user has not used the virtual envionrment then the following python packa
 
 ```
 pip3 install Cython
-pip3 install Rpiser
+pip3 install Ripser
 ```
 
 ### Multi-parameter persistence landscapes
