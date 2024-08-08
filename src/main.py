@@ -135,7 +135,7 @@ if __name__ == "__main__":
                         resolution=resolution, 
                         grid_step_size=grid_step_size, 
                         threads=threads, 
-                        description=f"{file}"
+                        description=f"{file_no_extension}"
                         )
                 
                     # Generate mph landscape contour 
