@@ -1,12 +1,6 @@
 [submodule "src/rivet"]
 	path = src/rivet
 	url = git@github.com:rivetTDA/rivet.git
-[submodule "src/hera"]
-	path = src/hera
-	url = https://bitbucket.org/xoltar/hera.git
-[submodule "src/pyrivet"]
-	path = src/pyrivet
-	url = git@github.com:aerojam95/rivet-python.git
 [submodule "src/mph"]
 	path = src/mph
 	url = git@github.com:aerojam95/Multiparameter_Persistence_Landscapes.git
