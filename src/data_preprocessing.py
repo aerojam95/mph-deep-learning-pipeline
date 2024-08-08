@@ -10,7 +10,6 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import torchvision.transforms as transforms
 import os
 from skimage.transform import resize
 
@@ -23,12 +22,7 @@ from mph.helper_functions import Compute_Rivet
 # Variables
 #=============================================================================
 
-# Transformer for PyTorch dataset
-transform = transforms.Compose([
-   transforms.Resize((28, 28)),
-   transforms.ToTensor(),
-   transforms.Normalize((0.5,), (0.5,))
-])
+
 
 #=============================================================================
 # Functions
@@ -146,7 +140,7 @@ def make_label_allocation(label_file: str):
         logger.error(f"An error occurred while iterating over the DataFrame: {e}")
     return label_dict
 
-def mphData(file:str, coord1:str, coord2:str, parameter:str):
+def mphData(file:str, coord1:str, coord2:str, parameter:str, nrows=None):
     """formats data from a .csv data file into two pd DataFrames
 
     Args:
@@ -154,11 +148,14 @@ def mphData(file:str, coord1:str, coord2:str, parameter:str):
         coord1 (str): x coordinate for persistent homology
         coord2 (str): y coordinate for persistent homology
         parameter (str): second parameter for persistent homology
+        nrows (int, optional): number of rows to read in if not None
 
     Returns:
         pd DataFrame, pd DataFrame: Coordinate and parameter DataFrames
     """
     df = pd.read_csv(file)
+    if nrows is not None:
+        df = df.head(nrows)
     X = df[[coord1, coord2]].values
     parameter_level = df[parameter].values
     return X, parameter_level

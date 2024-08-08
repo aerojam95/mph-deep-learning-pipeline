@@ -56,9 +56,9 @@ if __name__ == "__main__":
     
     # Argument parsing
     parser = argparse.ArgumentParser(description="Generates output .csv file parsed ")
-    parser.add_argument("-d", type=str, required=True, help="Directory of files to be labelled")
-    parser.add_argument("-l", type=str, required=True, help="Label for files")
-    parser.add_argument("-f", type=str, required=True, help="Output file path")
+    parser.add_argument("-d", "--directory", type=str, required=True, help="Directory of files to be labelled")
+    parser.add_argument("-l", "--label", type=str, required=True, help="Label for files")
+    parser.add_argument("-f", "--ouput_file", type=str, required=True, help="Output file path")
     args = parser.parse_args()
     directory = args.d
     label = args.l

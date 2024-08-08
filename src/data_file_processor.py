@@ -11,6 +11,7 @@ from scipy.spatial import distance_matrix
 import pandas as pd
 import numpy as np
 import yaml
+import argparse
 
 
 # Custom modules
@@ -22,7 +23,7 @@ from mph.helper_functions import normalise_pointcloud, normalise_filter
 # Variables
 #=============================================================================
 
-configurationFilePath = "data_file_configuration.yaml"
+configurationFilePath = "../config/data_file_config.yaml"
 
 #=============================================================================
 # Functions
@@ -76,6 +77,12 @@ if __name__ == "__main__":
     
     logger.info(f"Generating codensity ...")
     
+    # Argument parsing
+    parser = argparse.ArgumentParser(description="Modifies data .csv file")
+    parser.add_argument("-d", "--directory", type=str, required=True, help="Directory of files to be modified")
+    args = parser.parse_args()
+    directory_to_compute = args.d
+    
     #==========================================================================
     # Configuration imports
     #==========================================================================
@@ -85,7 +92,6 @@ if __name__ == "__main__":
     
     # Extract data file configuration
     logger.info(f"importing data file configurations...")
-    directory_to_compute = configurationData["directory_to_compute"]
     coord1               = configurationData["coord1"]
     coord2               = configurationData["coord2"]
     compute_codensity    = configurationData["compute_codensity"]

@@ -11,6 +11,8 @@ import yaml
 import glob
 import os
 import numpy as np
+import argparse
+from tqdm import tqdm
 
 # Custom modules
 from logger import logger
@@ -22,13 +24,23 @@ import dataset
 #=============================================================================
 
 # Path to the JSON metadata file
-configurationFilePath = "pipeline_configuration.yaml"
+configurationFilePath = "../config/pipeline_config.yaml"
 
 #=============================================================================
 # Programme exectuion
 #=============================================================================
 
 if __name__ == "__main__":
+    
+    # Argument parsing
+    parser = argparse.ArgumentParser(description="files for mph and learning processing")
+    parser.add_argument("-r", "--raw_directory", type=str, required=True, help="Directory containing files for processing")
+    parser.add_argument("-l", "--label_file", type=str, required=True, help="Label file")
+    parser.add_argument("-p", "--processed_directory", type=str, required=True, help="Directory for saving mph outputs")
+    args = parser.parse_args()
+    raw_data_directory_path = args.raw_directory
+    label_file = args.label_file
+    processed_data_directory_path = args.processed_directory
     
     #==========================================================================
     # Configuration imports
@@ -37,15 +49,10 @@ if __name__ == "__main__":
     with open(configurationFilePath, "r") as file:
         configurationData = yaml.safe_load(file)
     
-    # Extract data configuration
-    logger.info(f"importing data configurations...")
-    raw_data_directory_path       = configurationData["data"]["raw_data_directory_path"]
-    processed_data_directory_path = configurationData["data"]["processed_data_directory_path"]
-    label_file                    = configurationData["data"]["label_file"]
-    
     # Extract mph configuration
     logger.info(f"importing mph configurations...")
     contours                = configurationData["mph"]["contours"]
+    points                  = configurationData["mph"]["points"]
     threads                 = configurationData["mph"]["threads"]
     coord1                  = configurationData["mph"]["coord1"]
     coord2                  = configurationData["mph"]["coord2"]
@@ -108,7 +115,7 @@ if __name__ == "__main__":
         files = data_preprocessing.list_files_in_directory(raw_data_directory_path)
         folder = data_preprocessing.extract_between_last_two_slashes(raw_data_directory_path)
         
-        for file in files:
+        for file in tqdm(files, desc="Processing files"):
             file_no_extension = file.rstrip(".csv")
             # Get Data for processing
             logger.info(f"Runnning preprocessing on {file_no_extension}...")
@@ -116,7 +123,8 @@ if __name__ == "__main__":
                 file=f"{raw_data_directory_path}{file}",
                 coord1=coord1, 
                 coord2=coord2, 
-                parameter=parameter
+                parameter=parameter,
+                nrows=points
                 )
             
             if np.isnan(parameter_level).any():
