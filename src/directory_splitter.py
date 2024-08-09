@@ -72,13 +72,19 @@ def split_directory(source_dir:str, num_splits:int=4):
 
 if __name__ == "__main__":
     
+    #==========================================================================
     # Argument parsing
+    #==========================================================================
+    
     parser = argparse.ArgumentParser(description="Split a directory into multiple subdirectories.")
     parser.add_argument("-d", "--directory", type=str, required=True, help="Directory of files to be split")
     parser.add_argument("-n", "--num_splits", type=int, default=4, help="Number of subdirectories to create")
     args = parser.parse_args()
     
-    # Split directory
+    #==========================================================================
+    # Splitting directory
+    #==========================================================================
+    
     logger.info(f"Splitting {args.directory}...")
     split_directory(args.directory, args.num_splits)
     logger.info(f"{args.directory} split")

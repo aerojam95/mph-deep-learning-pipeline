@@ -32,10 +32,13 @@ configurationFilePath = "../config/pipeline_config.yaml"
 
 if __name__ == "__main__":
     
+    #==========================================================================
     # Argument parsing
+    #==========================================================================
+    
     parser = argparse.ArgumentParser(description="files for mph and learning processing")
     parser.add_argument("-r", "--raw_directory", type=str, required=True, help="Directory containing files for processing")
-    parser.add_argument("-l", "--label_file", type=str, required=True, help="Label file")
+    parser.add_argument("-l", "--label_file", type=str, required=False, help="Label file")
     parser.add_argument("-p", "--processed_directory", type=str, required=True, help="Directory for saving mph outputs")
     args = parser.parse_args()
     raw_data_directory_path = args.raw_directory
@@ -78,6 +81,14 @@ if __name__ == "__main__":
     models_directory_path      = configurationData["output"]["models_directory_path"]
     training_directory_path    = configurationData["output"]["training_directory_path"]
     summaries_directory_path   = configurationData["output"]["summaries_directory_path"]
+    
+    #==========================================================================
+    # Checking output directory exists
+    #==========================================================================
+    
+    logger.info(f"Checking output directory...")
+    if not os.path.exists(processed_data_directory_path):
+            os.makedirs(processed_data_directory_path)
     
     #==========================================================================
     # Generating MPH contours 

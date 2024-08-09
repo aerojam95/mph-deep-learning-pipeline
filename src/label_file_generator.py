@@ -9,6 +9,7 @@
 # Standard modules
 import pandas as pd
 import argparse
+import os
 
 # Custom modules
 from logger import logger
@@ -54,32 +55,44 @@ if __name__ == "__main__":
     
     logger.info(f"Generating label file...")
     
+   #==========================================================================
     # Argument parsing
+    #==========================================================================
+    
     parser = argparse.ArgumentParser(description="Generates output .csv file parsed ")
     parser.add_argument("-d", "--directory", type=str, required=True, help="Directory of files to be labelled")
     parser.add_argument("-l", "--label", type=str, required=True, help="Label for files")
     parser.add_argument("-f", "--ouput_file", type=str, required=True, help="Output file path")
     args = parser.parse_args()
-    directory = args.d
-    label = args.l
-    output_file_path = args.f
+    directory = args.directory
+    label = args.label
+    output_file_path = args.ouput_file
     
-    # label files
+    #==========================================================================
+    # Load files and label
+    #==========================================================================
+    
     logger.info(f"Labelling files...")
     try:
         files = data_preprocessing.list_files_in_directory(directory)
     except OSError as e:
-        print(f"Error: {directory} : {e.strerror}")
+        logger.error(f"Directory {directory} does not exist")
     try:
         labelled_files = create_dataframe(files, label)
     except OSError as e:
-        print(f"Error: {label} : {e.strerror}")
+        logger.error(f"Label {label} is invalid")
     
+    #==========================================================================
     # Saving label file
+    #==========================================================================
+    
     logger.info(f"Labelling files...")
     try:
+        output_directory = os.path.dirname(output_file_path)
+        if not os.path.exists(output_directory):
+            os.makedirs(output_directory)
         labelled_files.to_csv(output_file_path, index=False)
     except OSError as e:
-        print(f"Error: {output_file_path} : {e.strerror}")
+        logger.error(f"Output file {output_file_path} is invalid")
     logger.info(f"Label file generated")
     
