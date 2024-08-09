@@ -5,6 +5,9 @@
 # Activate the virtual environment if needed
 # source <path-to-python-venv/bin/activate>
 
+# Unzip the provided data set
+unzip "../data/raw/1.5mmRegions.zip" -d "../data/raw/"
+
 # Generate label files
 echo "Generating label files..."
 python3 label_file_generator.py -d "../data/raw/1.5mmRegions/CD8/" -l "CD8" -f "../data/processed/1.5mmRegions/labels/CD8.csv"
