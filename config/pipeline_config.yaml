@@ -3,8 +3,8 @@
 # MPH configuration
 mph:
   contours: True
-  points: 100
-  threads: 14
+  points: 700
+  threads: 2
   coord1: "x"
   coord2: "y"
   parameter: "codensity"

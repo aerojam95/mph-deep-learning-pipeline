@@ -164,3 +164,9 @@ cython_debug/
 
 # Log files
 *.log
+
+# Standard generated data directories
+data/processed
+data/processed.zip
+data/raw/1.5mmRegions/
+data/raw/ExampleSmallSamples
