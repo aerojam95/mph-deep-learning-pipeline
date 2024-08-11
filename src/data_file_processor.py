@@ -24,7 +24,7 @@ from mph.helper_functions import normalise_pointcloud, normalise_filter
 # Variables
 #=============================================================================
 
-configurationFilePath = "../config/data_file_config.yaml"
+configurationFilePath = "../config/dataFile.yaml"
 
 #=============================================================================
 # Functions

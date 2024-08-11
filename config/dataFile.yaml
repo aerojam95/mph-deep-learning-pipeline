@@ -1,4 +1,5 @@
 ## Data file configuration
+
 coord1: "x"
 coord2: "y"
 compute_codensity: True

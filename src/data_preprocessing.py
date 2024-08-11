@@ -140,6 +140,26 @@ def make_label_allocation(label_file: str):
         logger.error(f"An error occurred while iterating over the DataFrame: {e}")
     return label_dict
 
+def combine_label_files(directory:str):
+    """combines labels inside a directory of .csv label files
+
+    Args:
+        directory (str): directory of label files
+
+    Returns:
+        list: unqiue labels
+    """
+    files = list_files_in_directory(directory=directory)
+    label_list = []
+    for file in files:
+        labels = get_labels(file)
+        label_list.append(labels)
+    flattened_list = [item for sublist in label_list for item in sublist]
+    unique_elements = set(flattened_list)
+    unique_elements_list = list(unique_elements)
+    return unique_elements_list
+
+
 def mphData(file:str, coord1:str, coord2:str, parameter:str, nrows=None):
     """formats data from a .csv data file into two pd DataFrames
 

@@ -1,0 +1,14 @@
+## Model configuration
+
+# Model configuration
+model:
+  test_ratio: 0.2
+  supervised: True
+  pretrained: False
+  pretrained_model_file_path: null
+
+# Output configuration
+output:
+  models_directory_path: "../outputs/models/"
+  training_directory_path: "../outputs/training/"
+  summaries_directory_path: "../outputs/summaries/"

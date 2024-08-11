@@ -62,72 +62,80 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Run CD8 mph and learning
-echo "Running mph and learning..."
-python3 main.py -r "../data/processed/1.5mmRegions/standardised_data/CD8/part1/" -l "../data/processed/1.5mmRegions/labels/CD8.csv" -p "../data/processed/1.5mmRegions/mph/"
+# Run CD8 mph
+echo "Running mph..."
+python3 mph.py -r "../data/processed/1.5mmRegions/standardised_data/CD8/part1/" -l "../data/processed/1.5mmRegions/labels/CD8.csv" -p "../data/processed/1.5mmRegions/mph/"
 if [ $? -ne 0 ]; then
-    echo "mph and learning failed"
+    echo "mph failed"
     exit 1
 fi
-python3 main.py -r "../data/processed/1.5mmRegions/standardised_data/CD8/part2/" -l "../data/processed/1.5mmRegions/labels/CD8.csv" -p "../data/processed/1.5mmRegions/mph/"
+python3 mph.py -r "../data/processed/1.5mmRegions/standardised_data/CD8/part2/" -l "../data/processed/1.5mmRegions/labels/CD8.csv" -p "../data/processed/1.5mmRegions/mph/"
 if [ $? -ne 0 ]; then
-    echo "mph and learning failed"
+    echo "mph failed"
     exit 1
 fi
-python3 main.py -r "../data/processed/1.5mmRegions/standardised_data/CD8/part3/" -l "../data/processed/1.5mmRegions/labels/CD8.csv" -p "../data/processed/1.5mmRegions/mph/"
+python3 mph.py -r "../data/processed/1.5mmRegions/standardised_data/CD8/part3/" -l "../data/processed/1.5mmRegions/labels/CD8.csv" -p "../data/processed/1.5mmRegions/mph/"
 if [ $? -ne 0 ]; then
-    echo "mph and learning failed"
+    echo "mph failed"
     exit 1
 fi
-python3 main.py -r "../data/processed/1.5mmRegions/standardised_data/CD8/part4/" -l "../data/processed/1.5mmRegions/labels/CD8.csv" -p "../data/processed/1.5mmRegions/mph/"
+python3 mph.py -r "../data/processed/1.5mmRegions/standardised_data/CD8/part4/" -l "../data/processed/1.5mmRegions/labels/CD8.csv" -p "../data/processed/1.5mmRegions/mph/"
 if [ $? -ne 0 ]; then
-    echo "mph and learning failed"
-    exit 1
-fi
-
-# Run CD68 mph and learning
-echo "Running mph and learning..."
-python3 main.py -r "../data/processed/1.5mmRegions/standardised_data/CD68/part1/" -l "../data/processed/1.5mmRegions/labels/CD68.csv" -p "../data/processed/1.5mmRegions/mph/"
-if [ $? -ne 0 ]; then
-    echo "mph and learning failed"
-    exit 1
-fi
-python3 main.py -r "../data/processed/1.5mmRegions/standardised_data/CD68/part2/" -l "../data/processed/1.5mmRegions/labels/CD68.csv" -p "../data/processed/1.5mmRegions/mph/"
-if [ $? -ne 0 ]; then
-    echo "mph and learning failed"
-    exit 1
-fi
-python3 main.py -r "../data/processed/1.5mmRegions/standardised_data/CD68/part3/" -l "../data/processed/1.5mmRegions/labels/CD68.csv" -p "../data/processed/1.5mmRegions/mph/"
-if [ $? -ne 0 ]; then
-    echo "mph and learning failed"
-    exit 1
-fi
-python3 main.py -r "../data/processed/1.5mmRegions/standardised_data/CD68/part4/" -l "../data/processed/1.5mmRegions/labels/CD68.csv" -p "../data/processed/1.5mmRegions/mph/"
-if [ $? -ne 0 ]; then
-    echo "mph and learning failed"
+    echo "mph failed"
     exit 1
 fi
 
-# Run FoxP3 mph and learning
-echo "Running mph and learning..."
-python3 main.py -r "../data/processed/1.5mmRegions/standardised_data/FoxP3/part1/" -l "../data/processed/1.5mmRegions/labels/FoxP3.csv" -p "../data/processed/1.5mmRegions/mph/"
+# Run CD68 mph
+echo "Running mph..."
+python3 mph.py -r "../data/processed/1.5mmRegions/standardised_data/CD68/part1/" -l "../data/processed/1.5mmRegions/labels/CD68.csv" -p "../data/processed/1.5mmRegions/mph/"
 if [ $? -ne 0 ]; then
-    echo "mph and learning failed"
+    echo "mph failed"
     exit 1
 fi
-python3 main.py -r "../data/processed/1.5mmRegions/standardised_data/FoxP3/part2/" -l "../data/processed/1.5mmRegions/labels/FoxP3.csv" -p "../data/processed/1.5mmRegions/mph/"
+python3 mph.py -r "../data/processed/1.5mmRegions/standardised_data/CD68/part2/" -l "../data/processed/1.5mmRegions/labels/CD68.csv" -p "../data/processed/1.5mmRegions/mph/"
 if [ $? -ne 0 ]; then
-    echo "mph and learning failed"
+    echo "mph failed"
     exit 1
 fi
-python3 main.py -r "../data/processed/1.5mmRegions/standardised_data/FoxP3/part3/" -l "../data/processed/1.5mmRegions/labels/FoxP3.csv" -p "../data/processed/1.5mmRegions/mph/"
+python3 mph.py -r "../data/processed/1.5mmRegions/standardised_data/CD68/part3/" -l "../data/processed/1.5mmRegions/labels/CD68.csv" -p "../data/processed/1.5mmRegions/mph/"
 if [ $? -ne 0 ]; then
-    echo "mph and learning failed"
+    echo "mph failed"
     exit 1
 fi
-python3 main.py -r "../data/processed/1.5mmRegions/standardised_data/FoxP3/part4/" -l "../data/processed/1.5mmRegions/labels/FoxP3.csv" -p "../data/processed/1.5mmRegions/mph/"
+python3 mph.py -r "../data/processed/1.5mmRegions/standardised_data/CD68/part4/" -l "../data/processed/1.5mmRegions/labels/CD68.csv" -p "../data/processed/1.5mmRegions/mph/"
 if [ $? -ne 0 ]; then
-    echo "mph and learning failed"
+    echo "mph failed"
+    exit 1
+fi
+
+# Run FoxP3 mph
+echo "Running mph..."
+python3 mph.py -r "../data/processed/1.5mmRegions/standardised_data/FoxP3/part1/" -l "../data/processed/1.5mmRegions/labels/FoxP3.csv" -p "../data/processed/1.5mmRegions/mph/"
+if [ $? -ne 0 ]; then
+    echo "mph failed"
+    exit 1
+fi
+python3 mph.py -r "../data/processed/1.5mmRegions/standardised_data/FoxP3/part2/" -l "../data/processed/1.5mmRegions/labels/FoxP3.csv" -p "../data/processed/1.5mmRegions/mph/"
+if [ $? -ne 0 ]; then
+    echo "mph failed"
+    exit 1
+fi
+python3 mph.py -r "../data/processed/1.5mmRegions/standardised_data/FoxP3/part3/" -l "../data/processed/1.5mmRegions/labels/FoxP3.csv" -p "../data/processed/1.5mmRegions/mph/"
+if [ $? -ne 0 ]; then
+    echo "mph failed"
+    exit 1
+fi
+python3 mph.py -r "../data/processed/1.5mmRegions/standardised_data/FoxP3/part4/" -l "../data/processed/1.5mmRegions/labels/FoxP3.csv" -p "../data/processed/1.5mmRegions/mph/"
+if [ $? -ne 0 ]; then
+    echo "mph failed"
+    exit 1
+fi
+
+# Modelling
+echo "Running modelling on mph data set..."
+python3 modelling.py -d "../data/processed/1.5mmRegions/mph/" -l "../data/processed/1.5mmRegions/labels/" -m "testing_model"
+if [ $? -ne 0 ]; then
+    echo "modelling failed"
     exit 1
 fi
 
