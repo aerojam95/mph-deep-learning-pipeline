@@ -16,14 +16,14 @@ from tqdm import tqdm
 
 # Custom modules
 from logger import logger
-import data_preprocessing
+import data_preprocessing as dp
 
 #=============================================================================
 # Variables
 #=============================================================================
 
 # Path to the JSON metadata file
-configurationFilePath = "../config/mph.yaml"
+configuratio_file_path = "../config/mph.yaml"
 
 #=============================================================================
 # Programme exectuion
@@ -48,23 +48,23 @@ if __name__ == "__main__":
     # Configuration imports
     #==========================================================================
     
-    with open(configurationFilePath, "r") as file:
-        configurationData = yaml.safe_load(file)
+    with open(configuratio_file_path, "r") as file:
+        configuration_data = yaml.safe_load(file)
     
     # Extract mph configuration
     logger.info(f"importing mph configurations...")
-    points         = configurationData["points"]
-    threads        = configurationData["threads"]
-    coord1         = configurationData["coord1"]
-    coord2         = configurationData["coord2"]
-    parameter      = configurationData["parameter"]
-    homology       = configurationData["homology"]
-    k_family       = configurationData["k_family"]
-    plot_indices   = configurationData["plot_indices"]
-    resolution     = configurationData["resolution"]
-    RipsMax        = configurationData["RipsMax"]
-    grid_step_size = configurationData["grid_step_size"]
-    supervised     = configurationData["supervised"]
+    points         = configuration_data["points"]
+    threads        = configuration_data["threads"]
+    coord1         = configuration_data["coord1"]
+    coord2         = configuration_data["coord2"]
+    parameter      = configuration_data["parameter"]
+    homology       = configuration_data["homology"]
+    k_family       = configuration_data["k_family"]
+    plot_indices   = configuration_data["plot_indices"]
+    resolution     = configuration_data["resolution"]
+    RipsMax        = configuration_data["RipsMax"]
+    grid_step_size = configuration_data["grid_step_size"]
+    supervised     = configuration_data["supervised"]
     
     #==========================================================================
     # Checking output directory exists
@@ -89,14 +89,14 @@ if __name__ == "__main__":
         logger.info(f"Supervised learning pipeline to be set up")
         
         # Generate label directories
-        data_preprocessing.make_label_directories(
+        dp.make_label_directories(
             processed_data_directory_path,
             label_file
             )
         logger.info(f"Supervised learning label directories generated")
         
         # Make file dictionary label
-        file_label_dict = data_preprocessing.make_label_allocation(label_file)
+        file_label_dict = dp.make_label_allocation(label_file)
         logger.info(f"file label allocations identified")
         
     #======================================================================
@@ -105,14 +105,14 @@ if __name__ == "__main__":
 
     # Get files to process
     logger.info(f"Runnning contour generation on files in {raw_data_directory_path}")
-    files = data_preprocessing.list_files_in_directory(raw_data_directory_path)
-    folder = data_preprocessing.extract_between_last_two_slashes(raw_data_directory_path)
+    files = dp.list_files_in_directory(raw_data_directory_path)
+    folder = dp.extract_between_last_two_slashes(raw_data_directory_path)
     
     for file in tqdm(files, desc="Processing files"):
         file_no_extension = file.rstrip(".csv")
         # Get Data for processing
         logger.info(f"Runnning preprocessing on {file_no_extension}...")
-        X, parameter_level = data_preprocessing.mphData(
+        X, parameter_level = dp.get_mph_data(
             file=f"{raw_data_directory_path}{file}",
             coord1=coord1, 
             coord2=coord2, 
@@ -127,7 +127,7 @@ if __name__ == "__main__":
             logger.info(f"Generating mph landscape for {file_no_extension}...")
             
             try:
-                multi_landscape = data_preprocessing.computeMph(
+                multi_landscape = dp.compute_mph(
                     X, 
                     parameter_level, 
                     RipsMax=RipsMax, 
@@ -148,7 +148,7 @@ if __name__ == "__main__":
                 else:
                     contour_file = f"{processed_data_directory_path}{file_no_extension}_H{homology}_k{k_family}_RipsMax{RipsMax}"
                     
-                landscape_plots = data_preprocessing.generateMph(
+                landscape_plots = dp.generate_mph(
                     multi_landscape, 
                     file=contour_file,
                     indices=plot_indices

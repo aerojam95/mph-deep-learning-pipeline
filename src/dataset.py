@@ -11,23 +11,40 @@ from torch.utils.data import Dataset, random_split
 import torchvision.transforms as transforms
 from PIL import Image
 import os
+import torch
 
 # Custom modules
+from logger import logger
 
 #=============================================================================
 # Variables
 #=============================================================================
 
-# Transformer for PyTorch dataset
-transform = transforms.Compose([
-   transforms.Resize((28, 28)),
-   transforms.ToTensor(),
-   transforms.Normalize((0.5,), (0.5,))
-])
+
 
 #=============================================================================
 # Functions
 #=============================================================================
+
+def get_transform(mean:list=None, std:list=None, image_size:int=64):
+    """Get a simple torch transformer
+
+    Args:
+        mean (list, optional): mean of data set for normalising dataset. Defaults to None.
+        std (list, optional): standard deviation of data set for normalising data set. Defaults to None.
+        image_size (int, optional): Number of pixels for square image. Defaults to 64.
+
+    Returns:
+        object: torch transformer object
+    """   
+    if mean is None and std is None:
+        return transforms.Compose([transforms.Resize((image_size, image_size)), transforms.ToTensor()])
+    elif mean is not None and std is not None:
+        return transforms.Compose([transforms.Resize((image_size, image_size)), transforms.ToTensor(), transforms.Normalize(mean=mean.tolist(), std=std.tolist())])
+    else:
+        logger.error(f"mean and std need to be lists to generate transform object")
+        return None
+        
 
 def split_dataset(dataset:object, ratio:float=0.8):
     """Split the data set object up into training and test data sets
@@ -45,40 +62,85 @@ def split_dataset(dataset:object, ratio:float=0.8):
     train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
     return train_dataset, test_dataset
 
+def calculate_mean_std(loader:object):
+    """Calculates mean and standard deviation of dataloader object
+
+    Args:
+        loader (object): dataloader object to find mean and standard deviation
+
+    Returns:
+        tuple: mean and standard deviation lists in a tuple
+    """    
+    mean = 0.0
+    std = 0.0
+    total_images_count = 0
+    for images, _ in loader:
+        batch_samples = images.size(0)  # batch size (the last batch can have smaller size)
+        images = images.view(batch_samples, images.size(1), -1)  # (batch_size, channels, width*height)
+        mean += images.mean(2).sum(0)
+        std += images.std(2).sum(0)
+        total_images_count += batch_samples
+    
+    mean /= total_images_count
+    std /= total_images_count
+    return mean, std
 
 #=============================================================================
 # Classes
 #=============================================================================
 
-class LabelledDataset(Dataset):
-    def __init__(self:object, data_dir:str, labels:list, transform=transform):
+class Labelled_dataset(Dataset):
+    def __init__(self:object, data_dir:str, labels:dict, transform:object):
+        """
+        Initializes the dataset by loading all image paths and their corresponding labels.
+        
+        Args:
+            data_dir (str): The directory where images are stored.
+            labels (dict): A dictionary of labels corresponding with class nuimberings.
+            transform (object): Transform to be applied on a sample.
+        """
         self.data_dir = data_dir
         self.transform = transform
         self.images = []
         self.labels = []
         
-        for label in labels:
-            label_dir = os.path.join(data_dir, str(label))
+        for key, value in labels.items():
+            label_dir = os.path.join(data_dir, str(value))
             for img_name in os.listdir(label_dir):
                 img_path = os.path.join(label_dir, img_name)
                 self.images.append(img_path)
-                self.labels.append(label)
+                self.labels.append(key)
     
-    def __len__(self):
+    def __len__(self:object):
+        """Returns the total number of samples in the dataset. Int."""
         return len(self.images)
     
-    def __getitem__(self, idx):
+    def __getitem__(self:object, idx:int):
+        """
+        Generates one sample of data.
+        
+        Args:
+            idx (int): Index of the sample to be fetched.
+        
+        Returns:
+            tuple: (image, label) where image is a tensor and label is a tensor.
+        """
         img_path = self.images[idx]
         image = Image.open(img_path).convert('L')  # Convert image to grayscale
         label = self.labels[idx]
-        
-        if self.transform:
-            image = self.transform(image)
-        
-        return image, label
+        image = self.transform(image)
+        label_tensor = torch.tensor(label, dtype=torch.long)
+        return image, label_tensor
     
-class UnlabeledDataset(Dataset):
-    def __init__(self, data_dir, transform=transform):
+class Unlabelled_dataset(Dataset):
+    def __init__(self, data_dir:str, transform:object):
+        """
+        Initializes the dataset by loading all image paths.
+        
+        Args:
+            data_dir (str): The directory where images are stored.
+            transform (object): Transform to be applied on a sample.
+        """
         self.data_dir = data_dir
         self.transform = transform
         self.images = []
@@ -87,10 +149,20 @@ class UnlabeledDataset(Dataset):
             img_path = os.path.join(data_dir, img_name)
             self.images.append(img_path)
     
-    def __len__(self):
+    def __len__(self:object):
+        """Returns the total number of samples in the dataset. Int."""
         return len(self.images)
     
-    def __getitem__(self, idx):
+    def __getitem__(self:object, idx:int):
+        """
+        Generates one sample of data.
+        
+        Args:
+            idx (int): Index of the sample to be fetched.
+        
+        Returns:
+            torch.tensor: image where image is a tensor and label is a tensor.
+        """
         img_path = self.images[idx]
         image = Image.open(img_path).convert('L')  # Convert image to grayscale
         

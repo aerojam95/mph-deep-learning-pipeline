@@ -1,0 +1,6 @@
+F1 Score (Macro): 0.5663
+Confusion Matrix:
+[[63, 20, 26],
+ [17, 61, 30],
+ [20, 25, 56]]
+Accuracy: 56.6038

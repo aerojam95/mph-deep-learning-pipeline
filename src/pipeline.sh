@@ -1,142 +1,152 @@
 #!/bin/bash
 
-# Base script for data sets contained in ../data/raw/1.5mmRegions.zip
+## NOTES
+# Pipeline Script to run a image classification on biparameter persistent
+# landscapes
 
-# Activate the virtual environment if needed
-# source <path-to-python-venv/bin/activate>
+## Install checks and executable
+# Ensure yq is installed. You can install it with:
+# sudo apt-get install yq
+
+# Provide confiuguration file
+FILE="../config/pipeline.yaml"
+echo "Using configurations from $FILE..."
+
+# command file
+command_file="commands.txt"
+
+# Activate the virtual environment
+activate=$(yq '.Env.to_activate' "$FILE")
+if [ "$activate" = "True" ]; then
+    env=$(yq '.Env.env' "$FILE")
+    echo "Activating ${env} python virtual environment..."
+    bin="/bin/activate"
+    env_path="${env}${bin}"
+    source "$env_path"
+fi
 
 # Unzip the provided data set
-unzip "../data/raw/1.5mmRegions.zip" -d "../data/raw/"
+to_unzip=$(yq '.File.to_unzip' "$FILE")
+if [ "$to_unzip" = "True" ]; then
+    raw_archive=$(yq '.File.path' "$FILE")
+    echo "Unzipping archive $raw_archive"
+    raw_directory="${raw_archive%/*}"
+    unzip "$raw_archive" -d "$raw_directory"
+else
+    raw_directory=$(yq '.File.path' "$FILE")
+fi
 
 # Generate label files
-echo "Generating label files..."
-python3 label_file_generator.py -d "../data/raw/1.5mmRegions/CD8/" -l "CD8" -f "../data/processed/1.5mmRegions/labels/CD8.csv"
-if [ $? -ne 0 ]; then
-    echo "CD8 label file generation failed"
-    exit 1
-fi
-python3 label_file_generator.py -d "../data/raw/1.5mmRegions/CD68/" -l "CD68" -f "../data/processed/1.5mmRegions/labels/CD68.csv"
-if [ $? -ne 0 ]; then
-    echo "CD68 label file generation failed"
-    exit 1
-fi
-python3 label_file_generator.py -d "../data/raw/1.5mmRegions/FoxP3/" -l "FoxP3" -f "../data/processed/1.5mmRegions/labels/FoxP3.csv"
-if [ $? -ne 0 ]; then
-    echo "FoxP3 label file generation failed"
-    exit 1
-fi
-
-# Modify data files
-echo "Modifying data files..."
-python3 data_file_processor.py -r "../data/raw/1.5mmRegions/CD8/" -p "../data/processed/1.5mmRegions/standardised_data/CD8/"
-if [ $? -ne 0 ]; then
-    echo "CD8 data file standardisation failed"
-    exit 1
-fi
-python3 data_file_processor.py -r "../data/raw/1.5mmRegions/CD68/" -p "../data/processed/1.5mmRegions/standardised_data/CD68/"
-if [ $? -ne 0 ]; then
-    echo "CD68 data file standardisation failed"
-    exit 1
-fi
-python3 data_file_processor.py -r "../data/raw/1.5mmRegions/FoxP3/" -p "../data/processed/1.5mmRegions/standardised_data/FoxP3/"
-if [ $? -ne 0 ]; then
-    echo "FoxP3 data file standardisation failed"
-    exit 1
+to_label=$(yq '.Labelling.to_label' "$FILE")
+labels=$(yq '.Labelling.labels' "$FILE")
+label_directory=$(yq '.Labelling.label_directory' "$FILE")
+count=$(yq '.Labelling.labels | length' "$FILE")
+if [ "$to_label" = "True" ]; then
+    echo "Generating label files..."
+    for ((i=0; i<$count; i++)); do
+        label=$(yq ".Labelling.labels[$i]" "$FILE")
+        python3 label_file_generator.py -d "${raw_directory}${label}/" -l "${label}" -f "${label_directory}${label}.csv"
+        if [ $? -ne 0 ]; then
+            echo "${label} label file generation failed"
+            exit 1
+        fi
+    done
 fi
 
-# Split standardised directories
-echo "Splitting data file directories..."
-python3 directory_splitter.py -d "../data/processed/1.5mmRegions/standardised_data/CD8/"
-if [ $? -ne 0 ]; then
-    echo "CD8 standardised directory splitting failed"
-    exit 1
-fi
-python3 directory_splitter.py -d "../data/processed/1.5mmRegions/standardised_data/CD68/"
-if [ $? -ne 0 ]; then
-    echo "CD68 standardised directory splitting failed"
-    exit 1
-fi
-python3 directory_splitter.py -d "../data/processed/1.5mmRegions/standardised_data/FoxP3/"
-if [ $? -ne 0 ]; then
-    echo "FoxP3 standardised directory splitting failed"
-    exit 1
-fi
-
-# Run CD8 mph
-echo "Running mph..."
-python3 mph.py -r "../data/processed/1.5mmRegions/standardised_data/CD8/part1/" -l "../data/processed/1.5mmRegions/labels/CD8.csv" -p "../data/processed/1.5mmRegions/mph/"
-if [ $? -ne 0 ]; then
-    echo "mph failed"
-    exit 1
-fi
-python3 mph.py -r "../data/processed/1.5mmRegions/standardised_data/CD8/part2/" -l "../data/processed/1.5mmRegions/labels/CD8.csv" -p "../data/processed/1.5mmRegions/mph/"
-if [ $? -ne 0 ]; then
-    echo "mph failed"
-    exit 1
-fi
-python3 mph.py -r "../data/processed/1.5mmRegions/standardised_data/CD8/part3/" -l "../data/processed/1.5mmRegions/labels/CD8.csv" -p "../data/processed/1.5mmRegions/mph/"
-if [ $? -ne 0 ]; then
-    echo "mph failed"
-    exit 1
-fi
-python3 mph.py -r "../data/processed/1.5mmRegions/standardised_data/CD8/part4/" -l "../data/processed/1.5mmRegions/labels/CD8.csv" -p "../data/processed/1.5mmRegions/mph/"
-if [ $? -ne 0 ]; then
-    echo "mph failed"
-    exit 1
+# Standardise data files
+to_standardise=$(yq '.Stadardising.to_standardise' "$FILE")
+supervised=$(yq '.Stadardising.supervised' "$FILE")
+standardised_directory=$(yq '.Stadardising.standardised_directory' "$FILE")
+if [ "$to_standardise" = "True" ]; then
+    echo "Standardising data files..."
+    if [ "$supervised" = "True" ]; then
+        for ((i=0; i<$count; i++)); do
+            label=$(yq ".Labelling.labels[$i]" "$FILE")
+            python3 data_file_processor.py -r "${raw_directory}${label}/" -p "${standardised_directory}${label}/"
+            if [ $? -ne 0 ]; then
+                echo "${raw_directory}${label}/ data files standardisation failed"
+                exit 1
+            fi
+        done
+    else
+        python3 data_file_processor.py -r "${raw_directory}" -p "${standardised_directory}"
+        if [ $? -ne 0 ]; then
+            echo "${raw_directory} data files standardisation failed"
+            exit 1
+        fi
+    fi
 fi
 
-# Run CD68 mph
-echo "Running mph..."
-python3 mph.py -r "../data/processed/1.5mmRegions/standardised_data/CD68/part1/" -l "../data/processed/1.5mmRegions/labels/CD68.csv" -p "../data/processed/1.5mmRegions/mph/"
-if [ $? -ne 0 ]; then
-    echo "mph failed"
-    exit 1
-fi
-python3 mph.py -r "../data/processed/1.5mmRegions/standardised_data/CD68/part2/" -l "../data/processed/1.5mmRegions/labels/CD68.csv" -p "../data/processed/1.5mmRegions/mph/"
-if [ $? -ne 0 ]; then
-    echo "mph failed"
-    exit 1
-fi
-python3 mph.py -r "../data/processed/1.5mmRegions/standardised_data/CD68/part3/" -l "../data/processed/1.5mmRegions/labels/CD68.csv" -p "../data/processed/1.5mmRegions/mph/"
-if [ $? -ne 0 ]; then
-    echo "mph failed"
-    exit 1
-fi
-python3 mph.py -r "../data/processed/1.5mmRegions/standardised_data/CD68/part4/" -l "../data/processed/1.5mmRegions/labels/CD68.csv" -p "../data/processed/1.5mmRegions/mph/"
-if [ $? -ne 0 ]; then
-    echo "mph failed"
-    exit 1
-fi
-
-# Run FoxP3 mph
-echo "Running mph..."
-python3 mph.py -r "../data/processed/1.5mmRegions/standardised_data/FoxP3/part1/" -l "../data/processed/1.5mmRegions/labels/FoxP3.csv" -p "../data/processed/1.5mmRegions/mph/"
-if [ $? -ne 0 ]; then
-    echo "mph failed"
-    exit 1
-fi
-python3 mph.py -r "../data/processed/1.5mmRegions/standardised_data/FoxP3/part2/" -l "../data/processed/1.5mmRegions/labels/FoxP3.csv" -p "../data/processed/1.5mmRegions/mph/"
-if [ $? -ne 0 ]; then
-    echo "mph failed"
-    exit 1
-fi
-python3 mph.py -r "../data/processed/1.5mmRegions/standardised_data/FoxP3/part3/" -l "../data/processed/1.5mmRegions/labels/FoxP3.csv" -p "../data/processed/1.5mmRegions/mph/"
-if [ $? -ne 0 ]; then
-    echo "mph failed"
-    exit 1
-fi
-python3 mph.py -r "../data/processed/1.5mmRegions/standardised_data/FoxP3/part4/" -l "../data/processed/1.5mmRegions/labels/FoxP3.csv" -p "../data/processed/1.5mmRegions/mph/"
-if [ $? -ne 0 ]; then
-    echo "mph failed"
-    exit 1
+# split standardised directories
+to_split=$(yq '.Splitting.to_split' "$FILE")
+supervised=$(yq '.Splitting.supervised' "$FILE")
+number_splits=$(yq '.Splitting.number_splits' "$FILE")
+if [ "$to_split" = "True" ]; then
+    echo "Splitting ${standardised_directory}..."
+    if [ "$supervised" = "True" ]; then
+        for ((i=0; i<$count; i++)); do
+            label=$(yq ".Labelling.labels[$i]" "$FILE")
+            if [ "$supervised" = "True" ]; then
+            python3 directory_splitter.py -d "${standardised_directory}${label}/"
+            if [ $? -ne 0 ]; then
+                echo "${standardised_directory}${label}/ standardised directory splitting failed"
+                exit 1
+            fi
+        done
+    else
+        python3 directory_splitter.py -d "${standardised_directory}"
+        if [ $? -ne 0 ]; then
+            echo "${standardised_directory} standardised directory splitting failed"
+            exit 1
+        fi
+    fi
 fi
 
-# Modelling
-echo "Running modelling on mph data set..."
-python3 modelling.py -d "../data/processed/1.5mmRegions/mph/" -l "../data/processed/1.5mmRegions/labels/" -m "testing_model"
-if [ $? -ne 0 ]; then
-    echo "modelling failed"
-    exit 1
+# Generate mph data sets
+to_mph=$(yq '.Mph.to_mph' "$FILE")
+supervised=$(yq '.Mph.supervised' "$FILE")
+mph_directory=$(yq '.Mph.mph_directory' "$FILE")
+if [ "$to_mph" = "True" ]; then
+    echo "Generating MPH data sets in ${mph_directory}..."
+    if [ "$supervised" = "True" ]; then
+        for ((i=0; i<$count; i++)); do
+            label=$(yq ".Env.labels[$i]" "$FILE")
+            for ((j=1; j<$number_splits; j++)); do
+                command="python3 mph.py -r "${standardised_directory}${label}/part${j}/" -l "${label_directory}${label}.csv" -p "${mph_directory}""
+                echo "$command" >> "${command_file}"
+            done
+        done
+    else
+        for ((j=1; j<$number_splits; j++)); do
+            command="python3 mph.py -r "${standardised_directory}part${j}/" -p "${mph_directory}""
+            echo "$command" >> "${command_file}"
+        done
+    fi
+    if [ "$supervised" = "True" ]; then
+        parallel=$(($count*$number_splits))
+        cat "$command_file" | xargs -I {} -P $parallel bash -c "{}"
+    else
+        cat "$command_file" | xargs -I {} -P $number_splits bash -c "{}"
+    fi
+    if [ $? -ne 0 ]; then
+            echo "Generating MPH data sets in ${mph_directory} failed"
+            exit 1
+        fi
+fi
+
+# Generate model
+to_model=$(yq '.Modelling.to_model' "$FILE")
+mph_directory=$(yq '.Modelling.mph_directory' "$FILE")
+label_directory=$(yq '.Modelling.label_directory' "$FILE")
+model_output_directory=$(yq '.Modelling.model_output_directory' "$FILE")
+model_name=$(yq '.Modelling.model_name' "$FILE")
+if [ "$to_model" = "True" ]; then
+    echo "Running modelling on mph data set in ${mph_directory}..."
+    python3 modelling.py -d "${mph_directory}" -l "${label_directory}" -m "${model_name}" -o "${model_output_directory}"
+    if [ $? -ne 0 ]; then
+        echo "modelling failed"
+        exit 1
+    fi
 fi
 
 # Completion

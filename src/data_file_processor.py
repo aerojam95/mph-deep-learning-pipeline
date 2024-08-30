@@ -24,7 +24,7 @@ from mph.helper_functions import normalise_pointcloud, normalise_filter
 # Variables
 #=============================================================================
 
-configurationFilePath = "../config/dataFile.yaml"
+configuration_file_path = "../config/dataFile.yaml"
 
 #=============================================================================
 # Functions
@@ -93,22 +93,22 @@ if __name__ == "__main__":
     # Configuration imports
     #==========================================================================
     
-    with open(configurationFilePath, "r") as file:
-        configurationData = yaml.safe_load(file)
+    with open(configuration_file_path, "r") as file:
+        configuration_data = yaml.safe_load(file)
     
     # Extract data file configuration
     logger.info(f"importing data file configurations...")
-    coord1               = configurationData["coord1"]
-    coord2               = configurationData["coord2"]
-    compute_codensity    = configurationData["compute_codensity"]
-    parameter            = configurationData["parameter"]
-    mean_codensity       = configurationData["mean_codensity"]
-    kNN                  = configurationData["kNN"]
-    region_standardise   = configurationData["region_standardise"]
-    alpha                = configurationData["alpha"]
-    global_standardise   = configurationData["global_standardise"]
-    rips_scale           = configurationData["rips_scale"]
-    parameter_scale      = configurationData["parameter_scale"]
+    coord1               = configuration_data["coord1"]
+    coord2               = configuration_data["coord2"]
+    compute_codensity    = configuration_data["compute_codensity"]
+    parameter            = configuration_data["parameter"]
+    mean_codensity       = configuration_data["mean_codensity"]
+    kNN                  = configuration_data["kNN"]
+    region_standardise   = configuration_data["region_standardise"]
+    alpha                = configuration_data["alpha"]
+    global_standardise   = configuration_data["global_standardise"]
+    rips_scale           = configuration_data["rips_scale"]
+    parameter_scale      = configuration_data["parameter_scale"]
     
     #==========================================================================
     # Get files to compute

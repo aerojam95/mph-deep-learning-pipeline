@@ -1,14 +1,22 @@
 ## Model configuration
 
-# Model configuration
-model:
-  test_ratio: 0.2
-  supervised: True
-  pretrained: False
-  pretrained_model_file_path: null
-
-# Output configuration
-output:
-  models_directory_path: "../outputs/models/"
-  training_directory_path: "../outputs/training/"
-  summaries_directory_path: "../outputs/summaries/"
+gpu: True
+test_ratio: 0.2
+batch_size: 128
+supervised: False
+in_channels: 1
+num_classes: 3
+training:
+  epochs: 10
+  optimiser:
+    lr: 0.001
+    beta: 0.95
+    weight_decay: 0.00001
+  loss:
+    temperature: 0.01
+  scheduler:
+    mode: "min"
+    factor: 0.1
+    patience: 10
+    threshold: 0.001
+    min_lr: 0.000001

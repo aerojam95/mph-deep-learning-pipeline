@@ -6,7 +6,7 @@ A data pipeline that represents point clouds as multi-parameter persistent homol
 Before using the code it is best to setup and start a Python virtual environment in order to avoid potential package clashes using the [requirements](src/requirements.txt) file:
 
 ```
-# Navigate into the data project directory
+# Navigate into the repository root directory
 
 # Create a virtual environment
 python3 -m venv <env-name>
@@ -35,3 +35,17 @@ Full instructions for installation of the Rivet appication is provided by the fo
 ### Multi-parameter persistence landscapes
 
 The pipeline will be extensively using the code base from [Multiparameter_Persistence_Landscapes](https://github.com/OliverVipond/Multiparameter_Persistence_Landscapes) in order to generate the multi-parameter persistent landscapes. No installations required from this submodule, simply the preceeding installations are required at this point for this submodule to be used.
+
+## Run pipeline
+
+The follwowing commands to make the pipeline BASH script executable to run the end to end pipeline with the desired configurations
+
+```
+# Navigate into the repository root directory
+
+cd src/
+
+chmod 744 pipeline.sh
+
+./pipeline.sh
+```

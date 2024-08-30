@@ -1,0 +1,37 @@
+Env:
+  to_activate: False
+  env: null
+
+File:
+  to_unzip: False
+  path:  "../data/raw/1.5mmRegions/"
+
+Labelling:
+  to_label: False
+  labels:
+    - "CD8"
+    - "CD68"
+    - "FoxP3"
+  label_directory: "../data/processed/1.5mmRegions/labels/"
+
+Stadardising:
+  to_standardise: False
+  supervised: True
+  standardised_directory: "../data/processed/1.5mmRegions/standardised_data/"
+
+Splitting:
+  to_split: False
+  supervised: True
+  number_splits: 4
+
+Mph:
+  to_mph: False
+  supervised: True
+  mph_directory: "../data/processed/1.5mmRegions/mph/"
+
+Modelling:
+  to_model: True
+  mph_directory: "../data/processed/1.5mmRegions/mph/"
+  label_directory: "../data/processed/1.5mmRegions/labels/"
+  model_output_directory: "../outputs/"
+  model_name: "test_model"

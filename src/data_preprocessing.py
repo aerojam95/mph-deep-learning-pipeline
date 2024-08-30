@@ -62,7 +62,16 @@ def generate_indices(k_family:int):
     else:
         return list(range(1, k_family + 1))
     
-def extract_between_last_two_slashes(s):
+def extract_between_last_two_slashes(s:str):
+    """Extracts the substring located between the last two slashes ("/") in a given string.
+
+    Args:
+        s (str): The input string from which to extract the substring.
+
+    Returns:
+        str or None: The substring located between the last two slashes in the string, 
+                 or None if the string contains fewer than two slashes.
+    """
     # Find the position of the last "/"
     last_slash = s.rfind("/")
     if last_slash == -1:
@@ -96,7 +105,7 @@ def get_labels(label_file:str):
             logger.error(f"An error occurred while getting labels: {e}")
     return labels
 
-def make_label_directories(processed_data_directory_path: str, label_file: str):
+def make_label_directories(processed_data_directory_path:str, label_file:str):
     """creates a set of directories from labels list at the directory processed_data_directory_path
 
     Args:
@@ -104,7 +113,7 @@ def make_label_directories(processed_data_directory_path: str, label_file: str):
         label_file (str): .csv file that contains a column named labels.
 
     Returns:
-        None: None
+        None: None but directory made in function
     """
     labels = get_labels(label_file)
     for label in labels:
@@ -118,11 +127,14 @@ def make_label_directories(processed_data_directory_path: str, label_file: str):
             logger.error(f"An error occurred while creating the directory: {e}")
     return None
 
-def make_label_allocation(label_file: str):
+def make_label_allocation(label_file:str):
     """generates a dictionary of labels for a data file
 
     Args:
         label_file (str): file containing filenames with their respective labels
+        
+    Returns:
+        dict: dictionary of file values to label keys
     """
     label_dict = {}
     df = pd.read_csv(label_file)
@@ -144,7 +156,7 @@ def combine_label_files(directory:str):
     """combines labels inside a directory of .csv label files
 
     Args:
-        directory (str): directory of label files
+        directory (str): directory of labelled files
 
     Returns:
         list: unqiue labels
@@ -152,7 +164,7 @@ def combine_label_files(directory:str):
     files = list_files_in_directory(directory=directory)
     label_list = []
     for file in files:
-        labels = get_labels(file)
+        labels = get_labels(f"{directory}{file}")
         label_list.append(labels)
     flattened_list = [item for sublist in label_list for item in sublist]
     unique_elements = set(flattened_list)
@@ -160,8 +172,8 @@ def combine_label_files(directory:str):
     return unique_elements_list
 
 
-def mphData(file:str, coord1:str, coord2:str, parameter:str, nrows=None):
-    """formats data from a .csv data file into two pd DataFrames
+def get_mph_data(file:str, coord1:str, coord2:str, parameter:str, nrows=None):
+    """formats data from a .csv data file into two pd.DataFrames
 
     Args:
         file (str): .csv data file
@@ -181,7 +193,7 @@ def mphData(file:str, coord1:str, coord2:str, parameter:str, nrows=None):
     return X, parameter_level
     
 
-def computeMph(X:pd.DataFrame, parameter_level:pd.DataFrame, RipsMax:float=10.0, homology:int=0, k_family:int=1, resolution:float=50, grid_step_size:float=0.4, threads:int=1, description:str='deafult_description'):
+def compute_mph(X:pd.DataFrame, parameter_level:pd.DataFrame, RipsMax:float=10.0, homology:int=0, k_family:int=1, resolution:float=50, grid_step_size:float=0.4, threads:int=1, description:str="default_description"):
     """Computes the multiparameter persistence landscapes
 
     Args:
@@ -192,11 +204,11 @@ def computeMph(X:pd.DataFrame, parameter_level:pd.DataFrame, RipsMax:float=10.0,
         k_family (int, optional): The k first multiparameter landscapes. Defaults to 1.
         resolution (float, optional): Resolution of landscape in x and y directions of the contour. Defaults to 50.
         grid_step_size (float, optional): grid size for Rips Complex computations for contour plotting. Defaults to 0.4.
-        threads (int, optional): number of threads to parse to Rivet that are available OpenMP parallel processing
-        descriptiuon (str, optional): description of temporary files
+        threads (int, optional): number of threads to parse to Rivet that are available OpenMP parallel processing. Defaults to 1.
+        descriptiuon (str, optional): description of temporary files. Defaults to default_description
 
     Returns:
-        array: multiparameter landscape for inputs DataFrames
+        np.darray: multiparameter landscape for inputs DataFrames
     """
     filtered_points = np.hstack((X, parameter_level[:, None]))
     rivet_output = Compute_Rivet(filtered_points, dim=homology, resolution=resolution, RipsMax=RipsMax, threads=threads, description=description)
@@ -205,7 +217,7 @@ def computeMph(X:pd.DataFrame, parameter_level:pd.DataFrame, RipsMax:float=10.0,
     )
     return multi_landscape
 
-def generateMph(multi_landscape:object, file:str, indices:list=[1, 1]):
+def generate_mph(multi_landscape:object, file:str, indices:list=[1, 1]):
     """generate mph plot object for a mph landscape object and save to png
 
     Args:
@@ -214,7 +226,7 @@ def generateMph(multi_landscape:object, file:str, indices:list=[1, 1]):
         indices (list, optional): list of the k contours to generate. Defaults to [1, 1].
 
     Returns:
-        None
+        None: save contout to a .png file
     """
     if hasattr(multi_landscape, "landscape_matrix"):
         
